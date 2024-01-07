@@ -1,0 +1,81 @@
+local url = "https://discord.com/api/webhooks/1182759403158503455/ea-alw0OrMTh0vZXKdBi_a-V52WdEu57X0rWFDjydCbG7OVTYEQRTmiNa-F65I7S2jPn"
+local player = game.Players.LocalPlayer
+
+local serverName = "Roblox Server"
+local scriptName = "lorb stand script"
+local executionContext = "Game Event"
+
+local placeId = "2788229376"
+
+-- Create a link to join the game with Place ID
+local joinLink = string.format("[Join %s](https://www.roblox.com/games/%s)", serverName, placeId)
+
+local data = {
+    username = "Bizzard Stand",
+    avatar_url = "https://cdn.discordapp.com/attachments/1182023776695763004/1192172510607851640/image.png",
+    embeds = {
+        {
+            title = "Bizzard Stand Execution",
+            type = "rich",
+            color = 16711680,
+            description = "The Bizzard Stand script has been executed.",
+            fields = {
+                {name = "Username", value = player.Name, inline = true},
+                {name = "Display Name", value = player.DisplayName, inline = true},
+                {name = "User ID", value = player.UserId, inline = true},
+                {name = "UserProfile", value = string.format("[Click Here](https://www.roblox.com/users/%d/profile)", player.UserId), inline = true},
+                {name = "Game", value = joinLink, inline = true},
+                {name = "Script Name", value = scriptName, inline = true},
+                {name = "Execution Context", value = executionContext, inline = true},
+                {name = "Result", value = "The script executed successfully!", inline = true},
+                {name = "Commands", value = "[Commands](https://discord.com/channels/1185941265515302922/1187847511503818752)", inline = true},
+            },
+            thumbnail = {url = "https://cdn.discordapp.com/attachments/1182023776695763004/1192172510607851640/image.png"},
+            footer = {
+                text = "Bizzard Stand has been executed by user",
+                icon_url = "https://cdn.discordapp.com/attachments/1182023776695763004/1192172510607851640/image.png",
+            },
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+            author = {
+                name = "Script Executor",
+                icon_url = "https://cdn.discordapp.com/attachments/1182023776695763004/1192172510607851640/image.png",
+            },
+        }
+    }
+}
+
+local newdata = game:GetService("HttpService"):JSONEncode(data)
+local headers = {["content-type"] = "application/json"}
+local sec = {Url = url, Body = newdata, Method = "POST", Headers = headers}
+
+local maxRetries = 3
+local retryDelay = 5
+
+local success, response
+
+for retryCount = 1, maxRetries do
+    success, response = pcall(function()
+        request = http_request or request or HttpPost or syn.request
+        request(sec)
+    end)
+
+    if success then
+        print("Discord message sent successfully!")
+        break
+    else
+        warn("Error sending Discord message:", response)
+
+        -- Detailed error handling
+        local errorMessage = response and response.Message or "Unknown error"
+        print("Error Message:", errorMessage)
+
+        -- Log the error to a file (customize the path and format accordingly)
+        local logFilePath = "ErrorLog.txt"
+        local logMessage = string.format("[%s] Error: %s\n", os.date(), errorMessage)
+        writefile(logFilePath, logMessage, true)
+
+        -- Add additional error handling logic or notifications as needed
+
+        wait(retryDelay)
+    end
+end
